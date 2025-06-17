@@ -20,7 +20,16 @@ handle_tipo(Request) :-
 handle_raizes(Request) :-
     http_read_json_dict(Request, Dict),
     bhaskara(Dict.a, Dict.b, Dict.c, Resultado),
-    reply_json_dict(_{resultado: Resultado}).
+    (   Resultado = raizes(X1, X2) ->
+        % Se o resultado for duas raízes, crie um JSON com um array
+        reply_json_dict(_{tipo: "duas_raizes", raizes: [X1, X2]})
+    ;   Resultado = raiz_unica(X) ->
+        % Se for uma raiz, crie um JSON com um número
+        reply_json_dict(_{tipo: "raiz_unica", raiz: X})
+    ;   Resultado = complexas ->
+        % Se for complexa, apenas informe o tipo
+        reply_json_dict(_{tipo: "complexas"})
+    ).
 
 start_server :-
     http_server(http_dispatch, [port(5000)]),
